@@ -6,7 +6,7 @@
 #include "Adafruit_MAX31856.h" // Make sure to install this library!
 
 #define SKETCH_VERSION "0.0.1"
-#define BAUD 115200 
+#define BAUD 115200
 
 Adafruit_MAX31856 thermocouple = Adafruit_MAX31856(5,4,3,2); // Use software SPI: CS, DI, DO, CLK
 
@@ -20,16 +20,16 @@ void setup() {
   thermocouple.setThermocoupleType(MAX31856_TCTYPE_K);  // Set thermocouple as K type 
   thermocouple.setConversionMode(MAX31856_CONTINUOUS);  // Use continuous conversion mode
   
-  /* Configure pin 9 for slow (1Hz) PWM (DO NOT MODIFY THIS!)*/
+  /* Configure HEATERPIN for slow (1Hz) PWM (DO NOT MODIFY THIS!)*/
   pinMode(9, OUTPUT);                 
   TCCR1A = _BV(COM1A1) | _BV(WGM11);  // Enable the PWM output OC1A (Arduino digital pin 9)
   TCCR1B = _BV(WGM13) | _BV(WGM12);   // Set fast pwm mode w/ ICR1 as top
   TCCR1B = TCCR1B | _BV(CS12);        // Set prescaler @ 256
   ICR1 = 62499;                       // Set the PWM frequency to 1Hz: 16MHz/(256 * 1Hz) - 1 = 62499
-  OCR1A = 0;                          // Output comapre register for setting duty cycle (This can be conveniently set with the basic analogRead() function)
+  OCR1A = 0;                          // Output compare register for setting duty cycle (This can be conveniently set with analogWrite())
   
-  t0 = millis();         // Set start time 
-  analogWrite(9,heater); // Set a fixed heater power
+  t0 = millis();                      // Set start time 
+  analogWrite(9,heater);              // Set a fixed heater power
 }
 
 void loop() {
