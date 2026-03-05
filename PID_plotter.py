@@ -1,6 +1,7 @@
 '''
 Example script for use in the PHYS-339 PID lab at McGill University.
 Written by Brandon Ruffolo in Feb 2024.
+Modified 2026.03.05
 
 '''
 
@@ -33,6 +34,7 @@ class plotter():
     """
     def __init__(self, port, baudrate, timeout, t_update):
         self.window    = _g.Window('PID', size = [1000,800])
+        self.window.event_close = self._window_close
         
         # Define grid space
         self.grid_top     = self.window.place_object(_g.GridLayout(False))
@@ -51,17 +53,20 @@ class plotter():
         self.timer.signal_tick.connect(self._timer_tick)
         
         # Connect to the Arduino
-        self.arduino = _serial.Serial(port = port, baudrate = baudrate, timeout = timeout)
-        _time.sleep(2)             # Give the arduino time to reset and run setup()
-        self.arduino.flushInput()  # Flush any data in the input buffer
-        
-        # Show the GUI
-        self.window.show()
-        
-        # Start the timer
-        self.timer.start()
+        try:
+            self.arduino = _serial.Serial(port = port, baudrate = baudrate, timeout = timeout)
+            _time.sleep(2)             # Give the arduino time to reset and run setup()
+            self.arduino.flushInput()  # Flush any data in the input buffer
 
-    
+            # Show the GUI
+            self.window.show()
+            
+            # Start the timer
+            self.timer.start()
+     
+        except _serial.SerialException as e:
+            print(f"Failed to open: {e}")
+
     def _timer_tick(self):
         
         # Grab available data and try to unpack it
@@ -79,5 +84,10 @@ class plotter():
         
         # Update the gui
         self.window.process_events()
+       
+    def _window_close(self):
+        self.timer.stop()
+        self.arduino.close()
+        
 
-self = plotter(port = 'COM4', baudrate = 115200, timeout = 1, t_update=80)  
+self = plotter(port = 'COM5', baudrate = 115200, timeout = 1, t_update=80)  
